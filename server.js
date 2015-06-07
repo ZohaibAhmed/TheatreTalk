@@ -32,6 +32,18 @@ app.get('/', function (req, res) {
   res.sendfile('./index.html');
 });
 
+app.get('/clear', function(req, res) {
+  users = {};
+  locations = [
+              {'x': -350, 'y': 0, 'z': 500},
+              {'x': 350, 'y': 0, 'z': 500},
+              {'x': -350, 'y': 0, 'z': 800},
+              {'x': 350, 'y': 0, 'z': 800},
+              {'x': 0, 'y': 0, 'z': 800}
+            ];
+  res.end(JSON.stringify({status: "ok"}));
+});
+
 io.on('connection', function (socket) {
   var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -43,6 +55,16 @@ io.on('connection', function (socket) {
     users[uuid] = location;
 
     io.emit('uuid', { "uuid": uuid, "location": location });
+  } else {
+    // Reset the stack and users
+    users = {};
+    locations = [
+              {'x': -350, 'y': 0, 'z': 500},
+              {'x': 350, 'y': 0, 'z': 500},
+              {'x': -350, 'y': 0, 'z': 800},
+              {'x': 350, 'y': 0, 'z': 800},
+              {'x': 0, 'y': 0, 'z': 800}
+            ];
   }
 
   socket.emit('currentUsers', users); 
