@@ -1,6 +1,12 @@
 var Scene = require('../components/scene');
 var MessagesStore = require('../store/MessagesStore');
 
+/**
+ * Add a new client (cube) to represent a new user.
+ * @param {integer} x coordinate
+ * @param {integer} y coordinate
+ * @param {integer} z coordinate
+ */
 function addClient(x, y, z) {
 	var geometry = new THREE.BoxGeometry( 50, 50, 50 );
 	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -12,11 +18,16 @@ function addClient(x, y, z) {
 }
 
 var Client = {
+	/**
+	 * Create listeners for new users
+	 */
 	init: function() {
-		// Add this as a listener to change
 		MessagesStore.addClientListener(this._onAdd);
 	},
 
+	/**
+	 * Handle new users
+	 */
 	_onAdd: function() {
 		var location = MessagesStore.getLocation();
 		addClient(location['x'], location['y'], location['z']);

@@ -10,30 +10,50 @@ _users = {}; // store the uuid of each user along with attributes
 _most_recent_location = null;
 _most_recent_user = null;
 
+/**
+ * Create a store for the incoming messages along with the users.
+ */
 var MessagesStore = assign({}, EventEmitter.prototype, {
+	/**
+	 * Add the given user with uuid and location.
+	 * @param {string} uuid representation of the unique identifier
+	 * @param {object} location that stores the x, y, and z coordinates of this user
+	*/
 	addUser: function(uuid, location) {
-		console.log("adding new user");
-		console.log(location);
 		_users[uuid] = {"location": location};
 		_most_recent = location;
 		_most_recent_user = uuid;
 	},
 
+	/**
+	 * Add a message for the user with id uuid
+	 * @param {string} uuid representation of the unique identifier
+	 * @param {string} message for the incoming message
+	*/
 	addMessage: function(uuid, message) {
-		console.log("MESSAGE");
-		console.log(message);
 		_users[uuid]["message"] = message;
 		_most_recent_user = uuid;
 	},
 
+	/**
+	 * Return the most recent user that was modified/added
+	 * @return {object} user object
+	 */
 	getMostRecentUser: function() {
 		return _most_recent_user;
 	},
 
+	/** 
+	 * @return {object} location for the most recent user
+	 */
 	getLocation: function() {
 		return _most_recent;
 	},
 
+	/**
+	 * @param {string} uuid unique identifier for user
+	 * @return {string} most recent message for user
+	 */
 	getLatestMessage: function(uuid) {
 		return _users[uuid]["message"];
 	},

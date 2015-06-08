@@ -734,7 +734,7 @@ module.exports = {
 	},
 
 	new_user: function(data) {
-		AppDispatcher.handleViewAction({
+		AppDispatcher.handleServerAction({
 			type: Constants.ActionTypes.NEW_CLIENT,
 			uuid: data['uuid'],
 			location: data['location']
@@ -742,7 +742,7 @@ module.exports = {
 	},
 
 	setup_user: function(uuid, location) {
-		AppDispatcher.handleViewAction({
+		AppDispatcher.handleServerAction({
 			type: Constants.ActionTypes.EXISTING_USER,
 			uuid: uuid,
 			location: location
@@ -755,6 +755,13 @@ var MessagesStore = require('../store/MessagesStore');
 
 var _bubbles = {}; // maintain all the bubbles for each client
 
+/**
+ * Create a new bubble at the given coordinates
+ * @param {integer} x coordinate
+ * @param {integer} y coordinate
+ * @param {integer} z coordinate
+ * @return {object} the bubble CSS3DObject object
+ */
 function createNewBubble(x, y, z) {
 	var element = document.createElement( 'div' );
 	element.className = 'element';
@@ -776,11 +783,17 @@ function createNewBubble(x, y, z) {
 }
 
 var Bubble = {
+	/**
+	 * Create listeners for new users and incoming messages
+	 */
 	init: function() {
 		MessagesStore.addClientListener(this._onUserAdd);
 		MessagesStore.addMessageListener(this._onMessage);
 	},
 
+	/**
+	 * Handle new users
+	 */
 	_onUserAdd: function() {
 		var location = MessagesStore.getLocation();
 		var user = MessagesStore.getMostRecentUser();
@@ -788,6 +801,9 @@ var Bubble = {
 		_bubbles[user] = {"bubble": bubble};
 	},
 
+	/**
+	 * Handle incoming messages
+	 */
 	_onMessage: function() {
 		// make bubble visible
 		var user = MessagesStore.getMostRecentUser();
@@ -807,6 +823,12 @@ module.exports = Bubble;
 var Scene = require('../components/scene');
 var MessagesStore = require('../store/MessagesStore');
 
+/**
+ * Add a new client (cube) to represent a new user.
+ * @param {integer} x coordinate
+ * @param {integer} y coordinate
+ * @param {integer} z coordinate
+ */
 function addClient(x, y, z) {
 	var geometry = new THREE.BoxGeometry( 50, 50, 50 );
 	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -818,11 +840,16 @@ function addClient(x, y, z) {
 }
 
 var Client = {
+	/**
+	 * Create listeners for new users
+	 */
 	init: function() {
-		// Add this as a listener to change
 		MessagesStore.addClientListener(this._onAdd);
 	},
 
+	/**
+	 * Handle new users
+	 */
 	_onAdd: function() {
 		var location = MessagesStore.getLocation();
 		addClient(location['x'], location['y'], location['z']);
@@ -862,7 +889,6 @@ var SERVER = "http://localhost:3000/"
 var socket = io.connect(SERVER, {origins: '*', 'sync disconnect on unload': true});
 
 socket.on('uuid', function (data) {
-	console.log(data);
 	if (!window.uuid) {
 		// this is me.
 		window.uuid = data['uuid'];
@@ -872,7 +898,6 @@ socket.on('uuid', function (data) {
 });
 
 socket.on('currentUsers', function(data) {
-	console.log("RECIEVED " + data);
 	var user_ids = Object.keys(data);
 
 	for (i = 0; i < user_ids.length; i++) {
@@ -881,7 +906,6 @@ socket.on('currentUsers', function(data) {
 });
 
 socket.on('incoming', function(data) {
-	console.log("RECIEVED " + data);
 	if (window.uuid) {
 		// Dispatch incoming action
 		MessageActions.recieve(data);
@@ -1050,7 +1074,7 @@ function onkey(event) {
 	if (event.keyCode == 80) { // p (pause)
 		// Toggle camera look speed on/off
 		(scene.camControls.lookSpeed > 0.0) ? scene.camControls.lookSpeed = 0.0 : scene.camControls.lookSpeed = 0.2;	
-	} 
+	}
 };
 window.addEventListener("keydown", onkey, true);
 },{"./components/bubble":8,"./components/client":9,"./components/scene":10,"./components/video":11,"./store/MessagesStore":15}],15:[function(require,module,exports){
@@ -1066,30 +1090,50 @@ _users = {}; // store the uuid of each user along with attributes
 _most_recent_location = null;
 _most_recent_user = null;
 
+/**
+ * Create a store for the incoming messages along with the users.
+ */
 var MessagesStore = assign({}, EventEmitter.prototype, {
+	/**
+	 * Add the given user with uuid and location.
+	 * @param {string} uuid representation of the unique identifier
+	 * @param {object} location that stores the x, y, and z coordinates of this user
+	*/
 	addUser: function(uuid, location) {
-		console.log("adding new user");
-		console.log(location);
 		_users[uuid] = {"location": location};
 		_most_recent = location;
 		_most_recent_user = uuid;
 	},
 
+	/**
+	 * Add a message for the user with id uuid
+	 * @param {string} uuid representation of the unique identifier
+	 * @param {string} message for the incoming message
+	*/
 	addMessage: function(uuid, message) {
-		console.log("MESSAGE");
-		console.log(message);
 		_users[uuid]["message"] = message;
 		_most_recent_user = uuid;
 	},
 
+	/**
+	 * Return the most recent user that was modified/added
+	 * @return {object} user object
+	 */
 	getMostRecentUser: function() {
 		return _most_recent_user;
 	},
 
+	/** 
+	 * @return {object} location for the most recent user
+	 */
 	getLocation: function() {
 		return _most_recent;
 	},
 
+	/**
+	 * @param {string} uuid unique identifier for user
+	 * @return {string} most recent message for user
+	 */
 	getLatestMessage: function(uuid) {
 		return _users[uuid]["message"];
 	},

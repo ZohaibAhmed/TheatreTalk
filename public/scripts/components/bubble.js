@@ -3,6 +3,13 @@ var MessagesStore = require('../store/MessagesStore');
 
 var _bubbles = {}; // maintain all the bubbles for each client
 
+/**
+ * Create a new bubble at the given coordinates
+ * @param {integer} x coordinate
+ * @param {integer} y coordinate
+ * @param {integer} z coordinate
+ * @return {object} the bubble CSS3DObject object
+ */
 function createNewBubble(x, y, z) {
 	var element = document.createElement( 'div' );
 	element.className = 'element';
@@ -24,11 +31,17 @@ function createNewBubble(x, y, z) {
 }
 
 var Bubble = {
+	/**
+	 * Create listeners for new users and incoming messages
+	 */
 	init: function() {
 		MessagesStore.addClientListener(this._onUserAdd);
 		MessagesStore.addMessageListener(this._onMessage);
 	},
 
+	/**
+	 * Handle new users
+	 */
 	_onUserAdd: function() {
 		var location = MessagesStore.getLocation();
 		var user = MessagesStore.getMostRecentUser();
@@ -36,6 +49,9 @@ var Bubble = {
 		_bubbles[user] = {"bubble": bubble};
 	},
 
+	/**
+	 * Handle incoming messages
+	 */
 	_onMessage: function() {
 		// make bubble visible
 		var user = MessagesStore.getMostRecentUser();

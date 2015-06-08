@@ -27,7 +27,6 @@ var SERVER = "http://localhost:3000/"
 var socket = io.connect(SERVER, {origins: '*', 'sync disconnect on unload': true});
 
 socket.on('uuid', function (data) {
-	console.log(data);
 	if (!window.uuid) {
 		// this is me.
 		window.uuid = data['uuid'];
@@ -37,7 +36,6 @@ socket.on('uuid', function (data) {
 });
 
 socket.on('currentUsers', function(data) {
-	console.log("RECIEVED " + data);
 	var user_ids = Object.keys(data);
 
 	for (i = 0; i < user_ids.length; i++) {
@@ -46,7 +44,6 @@ socket.on('currentUsers', function(data) {
 });
 
 socket.on('incoming', function(data) {
-	console.log("RECIEVED " + data);
 	if (window.uuid) {
 		// Dispatch incoming action
 		MessageActions.recieve(data);

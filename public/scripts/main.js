@@ -40,6 +40,6 @@ function onkey(event) {
 	if (event.keyCode == 80) { // p (pause)
 		// Toggle camera look speed on/off
 		(scene.camControls.lookSpeed > 0.0) ? scene.camControls.lookSpeed = 0.0 : scene.camControls.lookSpeed = 0.2;	
-	} 
+	}
 };
 window.addEventListener("keydown", onkey, true);

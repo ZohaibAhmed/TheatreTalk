@@ -17,7 +17,7 @@ module.exports = {
 	},
 
 	new_user: function(data) {
-		AppDispatcher.handleViewAction({
+		AppDispatcher.handleServerAction({
 			type: Constants.ActionTypes.NEW_CLIENT,
 			uuid: data['uuid'],
 			location: data['location']
@@ -25,7 +25,7 @@ module.exports = {
 	},
 
 	setup_user: function(uuid, location) {
-		AppDispatcher.handleViewAction({
+		AppDispatcher.handleServerAction({
 			type: Constants.ActionTypes.EXISTING_USER,
 			uuid: uuid,
 			location: location
